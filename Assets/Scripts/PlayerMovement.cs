@@ -13,6 +13,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] LayerMask groundMask;          // 자면 레이어 마스크.
 
     [Header("Movement")]
+    [SerializeField] Animator anim;
     [SerializeField] float moveSpeed;
     [SerializeField] float jumpHeight;
 
@@ -24,8 +25,54 @@ public class PlayerMovement : MonoBehaviour
 
 
     CharacterController controller;         // 캐릭터 제어 컴포넌트.
-    Vector3 velocity;                       // 중력 속도.    
-    bool isGrounded;                        // 지면을 밟고있는지에 대한 여부.
+
+
+    // 애니메이터 파라미터를 이용한다.
+    float velocityY
+    {
+        get
+        {
+            return anim.GetFloat("velocityY");
+        }
+        set
+        {
+            anim.SetFloat("velocityY", value);
+        }
+    }
+    bool isGround
+    {
+        get
+        {
+            return anim.GetBool("isGround");
+        }
+        set
+        {
+            anim.SetBool("isGround", value);
+        }
+    }
+    float inputX
+    {
+        get
+        {
+            return anim.GetFloat("inputX");
+        }
+        set
+        {
+            anim.SetFloat("inputX", value);
+        }
+    }
+    float inputY
+    {
+        get
+        {
+            return anim.GetFloat("inputY");
+        }
+        set
+        {
+            anim.SetFloat("inputY", value);
+        }
+    }
+
 
     float gravity => GRAVITY * gravityScale; // 중력 가속도 * 중력 비율.
 
@@ -37,8 +84,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log(controller.isGrounded);
-
         CheckGround();          // ground 체크.
 
         Movement();             // 이동.
@@ -49,36 +94,42 @@ public class PlayerMovement : MonoBehaviour
 
     private void CheckGround()
     {
-        isGrounded = Physics.CheckSphere(groundChecker.position, groundRadius, groundMask);
+        // 그라운드가 레이에 충돌 & 나의 하강 속도가 0보다 작거나 같을 경우.
+        bool isCheckGround = Physics.CheckSphere(groundChecker.position, groundRadius, groundMask);
+        isGround = isCheckGround && velocityY <= 0f;
     }
 
     private void Movement()
     {
-        float x = Input.GetAxisRaw("Horizontal");       // 키보드 좌,우 (좌측,우측)
-        float z = Input.GetAxisRaw("Vertical");         // 키보드 상,하 (정면,후면)
+        // Input.GetAxisRaw = -1, 0  1.
+        // Input.GetAxis = -1.0f ~ 1.0f.
+        inputX = Input.GetAxis("Horizontal");       // 키보드 좌,우 (좌측,우측)
+        inputY = Input.GetAxis("Vertical");         // 키보드 상,하 (정면,후면)
 
         // transform.방향 => 내 기준 방향 (로컬 좌표)
-        Vector3 direction = (transform.right * x) + (transform.forward * z);
+        Vector3 direction = (transform.right * inputX) + (transform.forward * inputY);
         controller.Move(direction * moveSpeed * Time.deltaTime);
-        
     }
 
     private void Gravity()
     {
-        if (isGrounded && velocity.y < 0f)       // 땅을 밟았고 하강 속력이 있다면.
+        if (isGround && velocityY < 0f)          // 땅을 밟았고 하강 속력이 있다면.
         {
-            velocity.y = -2f;                   // 최소한의 값으로 속력 대입.
+            velocityY = -2f;                       // 최소한의 값으로 속력 대입.
         }
 
-        velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
+        velocityY += gravity * Time.deltaTime;
+        controller.Move(new Vector3(0f, velocityY, 0f) * Time.deltaTime);
+
+        anim.SetFloat("velocityY", velocityY);     // 애니메이터의 파리미터를 갱신.
     }
 
     private void Jump()
     {
-        if (isGrounded && Input.GetButtonDown("Jump"))
+        if (isGround && Input.GetButtonDown("Jump"))
         {
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            velocityY = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            anim.SetTrigger("onJump");
         }
     }
 
