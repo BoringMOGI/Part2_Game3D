@@ -4,7 +4,13 @@ using UnityEngine;
 
 public interface IDamageable
 {
-    void OnDamaged(float amount);
+    void OnDamaged(float amount, DAMAGE_TYPE type = DAMAGE_TYPE.Normal);
+}
+
+public enum DAMAGE_TYPE
+{
+    Normal,
+    Critical,
 }
 
 public class PlayerController : MonoBehaviour
@@ -71,7 +77,15 @@ public class PlayerController : MonoBehaviour
             IDamageable target = hit.GetComponent<IDamageable>();
             if(target != null)
             {
-                target.OnDamaged(1);
+                float damage = Random.Range(10, 30);            // 최소, 최대값 사이의 랜덤 값.
+                bool isCri = (Random.value * 100f) < 20;        // 0~100사이 값이 20보다 작으면 (20%)
+
+                if(isCri)
+                {
+                    damage *= 1.5f;                             // 데미지 1.5배 증가.
+                }
+
+                target.OnDamaged(damage, isCri ? DAMAGE_TYPE.Critical : DAMAGE_TYPE.Normal);
             }
         }
     }

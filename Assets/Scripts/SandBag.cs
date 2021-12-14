@@ -4,10 +4,15 @@ using UnityEngine;
 
 public class SandBag : MonoBehaviour, IDamageable
 {
-
-    void IDamageable.OnDamaged(float amount)
+    void IDamageable.OnDamaged(float amount, DAMAGE_TYPE type)
     {
+        // RoundToInt : 반올림.
+        // CeilToInt : 올림.
+        // FloorToInt : 내림.        
         StartCoroutine(DamageEffect());
+
+        // 데미지 매니저에게 요청.
+        DamageManager.Instance.AppearDamage(transform, Mathf.RoundToInt(amount), type);
     }
 
 

@@ -438,7 +438,7 @@ AnimatorController:
   - serializedVersion: 5
     m_Name: Upper
     m_StateMachine: {fileID: 5239496116351479078}
-    m_Mask: {fileID: 31900000, guid: 89506e29e0dcefb44937573a3ff6d7cb, type: 2}
+    m_Mask: {fileID: 101100000, guid: 87216dbdf7dd8a047817768e0beb23b2, type: 2}
     m_Motions: []
     m_Behaviours: []
     m_BlendingMode: 0
@@ -541,10 +541,10 @@ AnimatorStateMachine:
     m_Position: {x: 290, y: 140, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -4962392812758161479}
-    m_Position: {x: 460, y: 400, z: 0}
+    m_Position: {x: 350, y: 400, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -6737756062556341261}
-    m_Position: {x: 670, y: 400, z: 0}
+    m_Position: {x: 660, y: 400, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -1908434945230014000}
     m_Position: {x: 510, y: 140, z: 0}
