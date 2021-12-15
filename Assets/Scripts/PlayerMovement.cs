@@ -7,10 +7,12 @@ public class PlayerMovement : MonoBehaviour
 {
     const float GRAVITY = -9.81f;
 
+    /*
     [Header("Ground")]
     [SerializeField] Transform groundChecker;       // 지면 체크를 위한 기준점.
     [SerializeField] float groundRadius;            // 지면 체크 반지름.
     [SerializeField] LayerMask groundMask;          // 자면 레이어 마스크.
+    */
 
     [Header("Movement")]
     [SerializeField] Animator anim;
@@ -84,7 +86,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        CheckGround();          // ground 체크.
+        //CheckGround();          // ground 체크.
+        isGround = controller.isGrounded;
 
         Movement();             // 이동.
         Jump();                 // 점프.
@@ -92,12 +95,14 @@ public class PlayerMovement : MonoBehaviour
         Gravity();              // 중력 값.
     }
 
+    /*
     private void CheckGround()
     {
         // 그라운드가 레이에 충돌 & 나의 하강 속도가 0보다 작거나 같을 경우.
         bool isCheckGround = Physics.CheckSphere(groundChecker.position, groundRadius, groundMask);
         isGround = isCheckGround && velocityY <= 0f;
     }
+    */
 
     private void Movement()
     {
@@ -130,22 +135,6 @@ public class PlayerMovement : MonoBehaviour
         {
             velocityY = Mathf.Sqrt(jumpHeight * -2f * gravity);
             anim.SetTrigger("onJump");
-        }
-    }
-
-
-
-
-
-
-
-
-    private void OnDrawGizmos()
-    {
-        if (groundChecker != null)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawSphere(groundChecker.position, groundRadius);
         }
     }
 }
