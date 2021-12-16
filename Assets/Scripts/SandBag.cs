@@ -2,19 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SandBag : MonoBehaviour, IDamageable
+public class SandBag : MonoBehaviour
 {
-    void IDamageable.OnDamaged(float amount, DAMAGE_TYPE type)
+    public void OnDamageEffect()
     {
-        // RoundToInt : 반올림.
-        // CeilToInt : 올림.
-        // FloorToInt : 내림.        
         StartCoroutine(DamageEffect());
-
-        // 데미지 매니저에게 요청.
-        DamageManager.Instance.AppearDamage(transform, Mathf.RoundToInt(amount), type);
     }
-
 
     IEnumerator DamageEffect()
     {

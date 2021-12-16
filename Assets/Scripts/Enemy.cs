@@ -2,14 +2,32 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour, IDamageable
+public class Enemy : MonoBehaviour
 {
-    [SerializeField] Transform damagePivot;
+    [SerializeField] Animator anim;
+    [SerializeField] Damageable damageable;
+    [SerializeField] new Collider collider;
 
-    public void OnDamaged(float amount, DAMAGE_TYPE type = DAMAGE_TYPE.Normal)
+
+    private void Update()
     {
-        // 데미지 공식..
-        int finalDamage = Mathf.RoundToInt(amount);
-        DamageManager.Instance.AppearDamage(damagePivot, finalDamage, type);
+        anim.SetBool("isAlive", damageable.hp > 0.0f);
+    }
+
+    public void OnDamaged()
+    {
+        anim.SetTrigger("onHit");
+    }
+    public void OnDead()
+    {
+        //collider.isTrigger = true;
+        collider.enabled = false;
+
+        Invoke("DestroyEnemy", 3.0f);
+    }
+
+    void DestroyEnemy()
+    {
+        Destroy(gameObject);
     }
 }

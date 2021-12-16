@@ -19,7 +19,7 @@ public class DamageText : MonoBehaviour, IPool<DamageText>
 
 
     // position:생성 위치, amount:데미지 수치.
-    public void Appear(Transform pivot, int amount, DAMAGE_TYPE type)
+    public void Appear(Vector3 position, int amount, DAMAGE_TYPE type)
     {
         // amount 수치를 string으로 출력.
         damageText.text = amount.ToString();
@@ -35,15 +35,15 @@ public class DamageText : MonoBehaviour, IPool<DamageText>
                 break;
         }
 
-        StartCoroutine(FixPosition(pivot));
+        StartCoroutine(FixPosition(position));
     }
 
-    IEnumerator FixPosition(Transform pivot)
+    IEnumerator FixPosition(Vector3 position)
     {
         while (anim.isPlaying)
         {
             // WorldToScreenPoint : 월드 좌표를 스크린 좌표로 반환.
-            Vector2 damagePosition = mainCam.WorldToScreenPoint(pivot.position);
+            Vector2 damagePosition = mainCam.WorldToScreenPoint(position);
             transform.position = damagePosition;
 
             yield return null;

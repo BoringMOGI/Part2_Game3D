@@ -16,11 +16,7 @@ public enum DAMAGE_TYPE
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] Animator anim;
-
-    [Header("Attackable")]
-    [SerializeField] Transform attackPivot;
-    [SerializeField] float attackRadius;
-    [SerializeField] LayerMask attackMask;
+    [SerializeField] Attackable attackable;
 
     [Header("Etc")]
     [SerializeField] float comboDelay;
@@ -71,23 +67,7 @@ public class PlayerController : MonoBehaviour
         comboReset = StartCoroutine(ComboReset());
         OnEndAttack();
 
-        Collider[] hits = Physics.OverlapSphere(attackPivot.position, attackRadius, attackMask);
-        foreach (Collider hit in hits)
-        {
-            IDamageable target = hit.GetComponent<IDamageable>();
-            if(target != null)
-            {
-                float damage = Random.Range(10, 30);            // 최소, 최대값 사이의 랜덤 값.
-                bool isCri = (Random.value * 100f) < 20;        // 0~100사이 값이 20보다 작으면 (20%)
-
-                if(isCri)
-                {
-                    damage *= 1.5f;                             // 데미지 1.5배 증가.
-                }
-
-                target.OnDamaged(damage, isCri ? DAMAGE_TYPE.Critical : DAMAGE_TYPE.Normal);
-            }
-        }
+        attackable.Attack();        // 공격!!
     }
 
     public void OnEndAttack()
@@ -109,11 +89,5 @@ public class PlayerController : MonoBehaviour
 
 
 
-private void OnDrawGizmos()
-    {
-        if(attackPivot != null)
-        {
-            Gizmos.DrawWireSphere(attackPivot.position, attackRadius);
-        }
-    }
+
 }
