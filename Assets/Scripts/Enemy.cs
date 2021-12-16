@@ -2,17 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour, IDamageable
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] Transform damagePivot;
 
-    // Update is called once per frame
-    void Update()
+    public void OnDamaged(float amount, DAMAGE_TYPE type = DAMAGE_TYPE.Normal)
     {
-        
+        // 데미지 공식..
+        int finalDamage = Mathf.RoundToInt(amount);
+        DamageManager.Instance.AppearDamage(damagePivot, finalDamage, type);
     }
 }
