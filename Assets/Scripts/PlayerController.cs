@@ -13,7 +13,7 @@ public enum DAMAGE_TYPE
     Critical,
 }
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : Singleton<PlayerController>
 {
     [SerializeField] Animator anim;
     [SerializeField] Attackable attackable;

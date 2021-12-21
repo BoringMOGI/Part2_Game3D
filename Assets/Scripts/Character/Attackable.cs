@@ -30,10 +30,11 @@ public class Attackable : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
         if (attackPivot != null)
         {
+            Gizmos.color = Color.white;
             Gizmos.DrawWireSphere(attackPivot.position, attackRadius);
         }
     }

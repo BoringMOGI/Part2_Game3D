@@ -10,120 +10,172 @@ public class Enemy : MonoBehaviour
     [SerializeField] Damageable damageable;
     [SerializeField] new Collider collider;
 
-    [Header("Variable")]
-    [SerializeField] LayerMask groundMask;      // 지면 레이어.
-    [SerializeField] LayerMask searchMask;      // 탐색 레이어.
-    [SerializeField] float patrolRange;
-    [SerializeField] float searchRange;
-
     [Header("Speed")]
     [SerializeField] float walkSpeed;
     [SerializeField] float runSpeed;
 
+    [Header("Variable")]
+    [SerializeField] LayerMask playerMask;
+    [SerializeField] float patrolRange;
+    [SerializeField] float searchRange;
+    [SerializeField] float attackRange;
 
-    Vector3 originPosition;                 // 최초 위치.
-    Transform targetPivot;                  // 탐지한 타겟의 위치.
+    [Header("Attack")]
+    [SerializeField] Attackable attackable;     // 공격 클래스.
+    [SerializeField] float attackCycle;         // 공격 주기.
 
-    float nextPatrolTime = 0.0f;            // 다음 순찰 시간.
 
-    private bool isPatrol = false;          // 순찰 중인가.
-    private bool isChaseTarget = false;     // 타겟을 추적 중인가.
+    float nextAttackCycle;              // 다음 공격 주기.
 
+    Transform player;                   // 플레이어 트랜스폼.
+    Vector3 originPosition;             // 적의 원점 위치.
+
+    bool isInSearchRange
+    {
+        get
+        {
+            return anim.GetBool("isInSearchRange");
+        }
+        set
+        {
+            anim.SetBool("isInSearchRange", value);
+        }
+    }             // 탐지 범위에 들어왔는지?
+    bool isInAttackRange
+    {
+        get
+        {
+            return anim.GetBool("isInAttackRange");
+        }
+        set
+        {
+            anim.SetBool("isInAttackRange", value);
+        }
+    }             // 공격 범위에 들어왔는지?
+    bool isDead
+    {
+        get
+        {
+            return anim.GetBool("isDead");
+        }
+        set
+        {
+            anim.SetBool("isDead", value);
+        }
+    }                      // 죽었는가?
 
     private void Start()
     {
+        player = PlayerController.Instance.transform;
         originPosition = transform.position;
     }
-
-    // 순찰.
-    private void SetPartolDestination()
-    {
-        if (!isPatrol && !isChaseTarget && nextPatrolTime <= Time.time)
-        {
-            // 레이의 기준점 위치를 계산.
-            Vector3 patrolPivot = originPosition + (Vector3.up * 2f);
-            patrolPivot.x += Random.Range(-patrolRange, +patrolRange);
-            patrolPivot.z += Random.Range(-patrolRange, +patrolRange);
-
-            // 레이를 쏴서 바닥에 맞는 지점을 목적지로 설정한다.
-            RaycastHit hit;
-            if (Physics.Raycast(patrolPivot, Vector3.down, out hit, 10f, groundMask))
-            {
-                agent.SetDestination(hit.point);        // NavMesh에게 목적지 전달.
-                isPatrol = true;                        // 정찰 시작.
-            }
-        }
-    }
-    private void Patrol()
-    {
-        if (!isPatrol)
-            return;
-
-        // 남은 거리가 0.0f 이하일때.
-        if (agent.remainingDistance <= 0.001f)
-        {
-            // 목적지까지 도착했는가?
-            isPatrol = false;
-            nextPatrolTime = Time.time + 2f;
-        }
-        // 걷고 잇는 중.
-        else
-        {
-            anim.SetBool("isWalk", true);
-            agent.speed = walkSpeed;
-        }
-    }
-
-    // 탐색
-    private void SearchTarget()
-    {
-        // 감지 범위 크기의 구를 이용해 플레이어 감지.
-        Collider[] hits = Physics.OverlapSphere(transform.position, searchRange, searchMask);
-        if(hits.Length > 0)
-        {
-            isChaseTarget = true;                   // 추적 중이라는 것을 갱신.
-            targetPivot = hits[0].transform;        // targetPivot에 대입.
-        }
-    }
-    private void ChasingTarget()
-    {
-        agent.SetDestination(targetPivot.position);
-    }
-
     private void Update()
     {
-        anim.SetBool("isRun", false);
-        anim.SetBool("isWalk", false);
+        if (isDead)
+            return;
 
-        // 타겟을 추적중이지 않을때 순찰, 탐색
-        if (!isChaseTarget)
+        isInSearchRange = Physics.CheckSphere(transform.position, searchRange, playerMask);
+        isInAttackRange = Physics.CheckSphere(transform.position, attackRange, playerMask);
+
+        // 탐지 범위 X, 공격 범위 X
+        if (!isInSearchRange && !isInAttackRange)
         {
-            SearchTarget();
-            SetPartolDestination();            
-            Patrol();
+            Patroling();
+        }
+        // 탐지 범위 O, 공격 범위 X
+        else if (isInSearchRange && !isInAttackRange)
+        {
+            ChaseToPlayer();
+        }
+        // 탐지 범위 O, 공격 범위 O
+        else if (isInSearchRange && isInAttackRange)
+        {
+            AttackToPlayer();
+        }
+    }
+
+    Vector3 patrolPoint;    // 정찰 지점.
+    bool isPatrolPoint;     // 정찰 지점이 설정되었는가?
+    bool isUnderAttack;     // 공격을 받는 중인가?
+
+    void Patroling()
+    {
+        if(!isPatrolPoint)
+        {
+            SetPatrolPoint();
         }
         else
         {
-            ChasingTarget();
-            anim.SetBool("isRun", true);
-            agent.speed = runSpeed;
+            agent.SetDestination(patrolPoint);
         }
 
-        anim.SetBool("isAlive", damageable.hp > 0.0f);
+        // 적의 이동 속도를 걷는 속도로 변경.
+        agent.speed = walkSpeed;
+
+        // 나와 정찰 지점의 거리가 충분히 작아졌다면 정찰을 종료한다.
+        float distanceToPatrolPoint = Vector3.Distance(transform.position, patrolPoint);
+        if (distanceToPatrolPoint <= 0.5f)
+            isPatrolPoint = false;
+    }
+    void SetPatrolPoint()
+    {
+        float randomX = originPosition.x + Random.Range(-patrolRange, patrolRange);
+        float randomZ = originPosition.z + Random.Range(-patrolRange, patrolRange);
+
+        // 특정 위치를 시작으로 특정 방향으로 이동하려는 레이를 생성.
+        Ray ray = new Ray(new Vector3(randomX, originPosition.y + 2f, randomZ), Vector3.down);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            patrolPoint = hit.point;
+            isPatrolPoint = true;
+        }
+    }
+
+    void ChaseToPlayer()
+    {
+        agent.SetDestination(player.position);      // 목적지를 플레이어의 위치로 설정.
+        agent.speed = runSpeed;                     // 적의 이동 속도를 달리는 속도로 변경.
+    }
+    void AttackToPlayer()
+    {
+        agent.SetDestination(transform.position);   // 목적지를 나의 위치로 잡는다.
+        transform.LookAt(player.position);          // LookAt : 특정 위치를 바라본다. (회전)
+
+        if (isUnderAttack)
+            return;
+
+        // attack..
+        if(nextAttackCycle <= Time.time)
+        {
+            nextAttackCycle = Time.time + attackCycle;      // 다음 공격 시간 갱신.
+            anim.SetTrigger("onAttack");                    // 애니메이터에 트리거 발동. 
+        }
     }
 
     public void OnDamaged()
     {
         anim.SetTrigger("onHit");
+        isUnderAttack = true;
+
+        CancelInvoke(nameof(ResetUnderAttack));     // 이전에 걸어둔 Invoke 취소.
+        Invoke(nameof(ResetUnderAttack), 1.5f);     // 1.5초 후에 함수 호출.
     }
     public void OnDead()
     {
         //collider.isTrigger = true;
         collider.enabled = false;
+        isDead = true;
 
         Invoke("DestroyEnemy", 3.0f);
     }
 
+
+    void ResetUnderAttack()
+    {
+        isUnderAttack = false;
+    }
     void DestroyEnemy()
     {
         Destroy(gameObject);
@@ -135,14 +187,27 @@ public class Enemy : MonoBehaviour
         UnityEditor.Handles.color = Color.green;
 
         // 게임이 실행 중일때.
-        // 순찰 범위.
+        // 탐색 범위.
         if (Application.isPlaying)
             UnityEditor.Handles.DrawWireDisc(originPosition, Vector3.up, patrolRange);
         else
             UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.up, patrolRange);
 
+        // 정찰 위치.
+        if (isPatrolPoint)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(patrolPoint, 0.3f);
+        }
+
+
         // 탐색 범위.
         UnityEditor.Handles.color = Color.yellow;
         UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.up, searchRange);
+
+       
+        // 공격 범위 그리기.
+        UnityEditor.Handles.color = Color.red;
+        UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.up, attackRange);
     }
 }
