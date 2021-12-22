@@ -22,9 +22,6 @@ public class PlayerMovement : MonoBehaviour
     [Range(1.0f, 4.0f)]
     [SerializeField] float gravityScale;
 
-    [Header("Physics")]
-    [SerializeField] PhysicMaterial physicMaterial;
-
 
     CharacterController controller;         // 캐릭터 제어 컴포넌트.
 
@@ -75,34 +72,36 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-
     float gravity => GRAVITY * gravityScale; // 중력 가속도 * 중력 비율.
+    bool isDead = false;
 
     private void Start()
     {
         controller = GetComponent<CharacterController>();
-        controller.material = physicMaterial;
     }
-
     private void Update()
     {
         //CheckGround();          // ground 체크.
         isGround = controller.isGrounded;
 
-        Movement();             // 이동.
-        Jump();                 // 점프.
+        if (!isDead)
+        {
+            Movement();             // 이동.
+            Jump();                 // 점프.
+        }
 
         Gravity();              // 중력 값.
     }
 
-    /*
-    private void CheckGround()
+
+    public void OnDamaged()
     {
-        // 그라운드가 레이에 충돌 & 나의 하강 속도가 0보다 작거나 같을 경우.
-        bool isCheckGround = Physics.CheckSphere(groundChecker.position, groundRadius, groundMask);
-        isGround = isCheckGround && velocityY <= 0f;
+
     }
-    */
+    public void OnDead()
+    {
+        isDead = true;
+    }
 
     private void Movement()
     {
@@ -115,7 +114,6 @@ public class PlayerMovement : MonoBehaviour
         Vector3 direction = (transform.right * inputX) + (transform.forward * inputY);
         controller.Move(direction * moveSpeed * Time.deltaTime);
     }
-
     private void Gravity()
     {
         if (isGround && velocityY < 0f)          // 땅을 밟았고 하강 속력이 있다면.
@@ -128,7 +126,6 @@ public class PlayerMovement : MonoBehaviour
 
         anim.SetFloat("velocityY", velocityY);     // 애니메이터의 파리미터를 갱신.
     }
-
     private void Jump()
     {
         if (isGround && Input.GetButtonDown("Jump"))

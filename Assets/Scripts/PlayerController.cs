@@ -6,14 +6,14 @@ public interface IDamageable
 {
     void OnDamaged(float amount, DAMAGE_TYPE type = DAMAGE_TYPE.Normal);
 }
-
 public enum DAMAGE_TYPE
 {
     Normal,
     Critical,
 }
 
-public class PlayerController : Singleton<PlayerController>
+
+public partial class PlayerController : Singleton<PlayerController>
 {
     [SerializeField] Animator anim;
     [SerializeField] Attackable attackable;
@@ -24,6 +24,7 @@ public class PlayerController : Singleton<PlayerController>
     Coroutine comboReset;
 
     bool isAttack;          // 공격 중인가?
+    bool isDead;            // 죽었는가?
     int combo
     {
         get
@@ -36,21 +37,22 @@ public class PlayerController : Singleton<PlayerController>
         }
     }
 
-    private void Start()
+    void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;       // 마우스 잠그기.
-        Cursor.visible = false;                         // 마우스 포인터 비활성화.
-    }
+        StartCoroutine(ComboReset());
 
+        OnStart();
+    }
     void Update()
     {
         // GetMouseButtonDown(0:왼쪽, 1:오른쪽, 2:휠)
-        if(Input.GetMouseButtonDown(0) && !isAttack && combo < 3)
+        if (Input.GetMouseButtonDown(0) && !isDead && !isAttack && combo < 3)
         {
             Attack();
         }
     }
 
+    // 공격.
     void Attack()
     {
         // 연속 공격 타이머.
@@ -85,9 +87,27 @@ public class PlayerController : Singleton<PlayerController>
         combo = 0;                                          // 콤보를 초기화.
     }
 
+    // 피격.
+    public void OnDamaged()
+    {
 
+    }
+    public void OnDead()
+    {
+        isDead = true;
+        gameObject.layer = LayerMask.NameToLayer("Player_Dead");
 
+        anim.SetTrigger("onDead");
+    }
+}
 
+public partial class PlayerController
+{
+    [SerializeField] Item[] inventory = new Item[20];
 
-
+    void OnStart()
+    {
+        InventoryUI.Instance.UpdateInventory(inventory);
+    }
+    
 }
