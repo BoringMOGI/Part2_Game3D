@@ -103,11 +103,55 @@ public partial class PlayerController : Singleton<PlayerController>
 
 public partial class PlayerController
 {
-    [SerializeField] Item[] inventory = new Item[20];
+    Item[] inventory = new Item[20];
 
     void OnStart()
     {
+        AddItem(ItemManager.Instance.GetItem("potion1"));
+        AddItem(ItemManager.Instance.GetItem("potion2"));
+        AddItem(ItemManager.Instance.GetItem("potion3"));
+
+        InventoryUI.Instance.onChangedInven += OnChangedInven;
         InventoryUI.Instance.UpdateInventory(inventory);
+    }
+
+    private void OnChangedInven(int before, int after)
+    {
+        // 슬롯이 아닌 칸으로 움직였다.
+        if(after == -1)
+        {
+
+        }
+        else
+        {
+            Swap(inventory, before, after);                     // 이전, 이후 지점의 아이템을 교환.
+            InventoryUI.Instance.UpdateInventory(inventory);    // UI에게 그려달라고 요청.
+        }
+    }
+    public bool AddItem(Item item)
+    {
+        // 추가하려는 아이템이 없는 경우.
+        if (item == null)
+            return false;
+
+        for(int i = 0; i<inventory.Length; i++)
+        {
+            // 빈 공간을 발견했다.
+            if(inventory[i] == null)
+            {
+                inventory[i] = item;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void Swap<T>(T[] array, int a, int b)
+    {
+        T temp = array[a];
+        array[a] = array[b];
+        array[b] = temp;
     }
     
 }
