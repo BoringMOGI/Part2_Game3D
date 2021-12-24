@@ -2,13 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SandBag : MonoBehaviour
+public class SandBag : MonoBehaviour, IInteraction
 {
+    public string GetName()
+    {
+        return "샌드백";
+    }
+
+    public void OnInteraction()
+    {
+        Debug.Log("샌드백의 상호작용");
+    }
+
     public void OnDamageEffect()
     {
         StartCoroutine(DamageEffect());
     }
-
+        
     IEnumerator DamageEffect()
     {
         Material mainMat = GetComponent<MeshRenderer>().material;       // MeshRenderer의 메인 머티리얼.

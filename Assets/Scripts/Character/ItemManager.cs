@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemManager : Singleton<ItemManager>
+public class ItemManager : ObjectPool<ItemManager, ItemObject>
 {
     [SerializeField] List<Item> items = new List<Item>();
 
@@ -22,4 +22,19 @@ public class ItemManager : Singleton<ItemManager>
         return null;
     }
 
+    // 내가 전달해주는 Item을 담고 있는 아이템 오브젝트를 반환해달라.
+    public ItemObject GetItemObject(Item item)
+    {
+        ItemObject pool = GetPool();        // 풀에서 오브젝트를 하나 꺼낸다.
+        pool.Push(item);
+        return pool;
+    }
+
+    // 새로운 아이템 데이터를 담고 있는 아이템 오브젝트를 반환해달라.
+    public ItemObject GetItemObject(string itemKey, int count = 1)
+    {
+        ItemObject pool = GetPool();
+        pool.Push(GetItem(itemKey, count));
+        return pool;
+    }
 }

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class InventoryUI : Singleton<InventoryUI>
 {
+    [SerializeField] GameObject panel;
     [SerializeField] Transform slotParent;
     [SerializeField] PreviewSlot previewSlot;
 
@@ -27,10 +28,16 @@ public class InventoryUI : Singleton<InventoryUI>
             slots[i].onEndDrag += OnEndDrag;
         }
 
-        // 미리보기 슬롯 끄기.
-        previewSlot.gameObject.SetActive(false);
+        previewSlot.gameObject.SetActive(false);        // 미리보기 슬롯 끄기.
+        panel.SetActive(false);
     }
 
+    public bool SwitchInventory()
+    {
+        // activeSelf : 게임 오브젝트가 활성화 되어있는지.
+        panel.SetActive(!panel.activeSelf);
+        return panel.activeSelf;
+    }
     public void UpdateInventory(Item[] inventory)
     {
         for (int i = 0; i < inventory.Length; i++)

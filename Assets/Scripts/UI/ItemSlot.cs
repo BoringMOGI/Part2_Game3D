@@ -49,6 +49,8 @@ public class ItemSlot : MonoBehaviour
     {
         iconImage.enabled = false;
         countText.enabled = false;
+
+        item = null;
     }
 
 
@@ -72,14 +74,23 @@ public class ItemSlot : MonoBehaviour
 
     public void OnBeginDrag()
     {
+        if (item == null)
+            return;
+
         onBeginDrag?.Invoke(this);
     }
     public void OnDragging()
     {
+        if (item == null)
+            return;
+
         onDragging?.Invoke(this);
     }
     public void OnEndDrag()
     {
+        if (item == null)
+            return;
+
         onEndDrag?.Invoke(this);
     }
 

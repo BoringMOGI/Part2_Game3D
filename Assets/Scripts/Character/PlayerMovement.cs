@@ -2,20 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public interface IDamageable
+{
+    void OnDamaged(float amount, DAMAGE_TYPE type = DAMAGE_TYPE.Normal);
+}
+public enum DAMAGE_TYPE
+{
+    Normal,
+    Critical,
+}
+
+
+
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
     const float GRAVITY = -9.81f;
 
-    /*
-    [Header("Ground")]
-    [SerializeField] Transform groundChecker;       // 지면 체크를 위한 기준점.
-    [SerializeField] float groundRadius;            // 지면 체크 반지름.
-    [SerializeField] LayerMask groundMask;          // 자면 레이어 마스크.
-    */
+    [Header("Attack")]
+    [SerializeField] Animator anim;
+    [SerializeField] Attackable attackable;
+    [SerializeField] float comboDelay;
 
     [Header("Movement")]
-    [SerializeField] Animator anim;
     [SerializeField] float moveSpeed;
     [SerializeField] float jumpHeight;
 
@@ -24,6 +33,22 @@ public class PlayerMovement : MonoBehaviour
 
 
     CharacterController controller;         // 캐릭터 제어 컴포넌트.
+
+    Coroutine comboReset;
+
+    bool isAttack;          // 공격 중인가?
+    bool isDead;            // 죽었는가?
+    int combo
+    {
+        get
+        {
+            return anim.GetInteger("combo");
+        }
+        set
+        {
+            anim.SetInteger("combo", value);
+        }
+    }
 
 
     // 애니메이터 파라미터를 이용한다.
@@ -73,11 +98,11 @@ public class PlayerMovement : MonoBehaviour
     }
 
     float gravity => GRAVITY * gravityScale; // 중력 가속도 * 중력 비율.
-    bool isDead = false;
 
     private void Start()
     {
         controller = GetComponent<CharacterController>();
+        StartCoroutine(ComboReset());
     }
     private void Update()
     {
@@ -88,12 +113,51 @@ public class PlayerMovement : MonoBehaviour
         {
             Movement();             // 이동.
             Jump();                 // 점프.
+
+            // GetMouseButtonDown(0:왼쪽, 1:오른쪽, 2:휠)
+            if (Input.GetMouseButtonDown(0) && !isAttack && combo < 3)
+            {
+                Attack();
+            }
         }
 
         Gravity();              // 중력 값.
     }
 
+    // 공격.
+    void Attack()
+    {
+        // 연속 공격 타이머.
+        if (comboReset != null)
+            StopCoroutine(comboReset);
 
+        // 변수 지정.
+        isAttack = true;
+        combo += 1;
+        anim.SetTrigger("onAttack");
+    }
+    public void OnHit()
+    {
+        comboReset = StartCoroutine(ComboReset());
+        OnEndAttack();
+
+        attackable.Attack();        // 공격!!
+    }
+    public void OnEndAttack()
+    {
+        isAttack = false;
+    }
+    IEnumerator ComboReset()
+    {
+        float comboTime = comboDelay;                       // 연속 공격 시간.
+
+        while ((comboTime -= Time.deltaTime) > 0.0f)       // 시간이 다 되었다면.
+            yield return null;
+
+        combo = 0;                                          // 콤보를 초기화.
+    }
+
+    // 피격.
     public void OnDamaged()
     {
 
@@ -101,8 +165,12 @@ public class PlayerMovement : MonoBehaviour
     public void OnDead()
     {
         isDead = true;
+        gameObject.layer = LayerMask.NameToLayer("Player_Dead");
+
+        anim.SetTrigger("onDead");
     }
 
+    // 이동.
     private void Movement()
     {
         // Input.GetAxisRaw = -1, 0  1.
