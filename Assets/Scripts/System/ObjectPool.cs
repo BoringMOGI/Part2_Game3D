@@ -12,8 +12,8 @@ public class ObjectPool<ManagerType, PoolType> : Singleton<ManagerType>
     where PoolType : MonoBehaviour, IPool<PoolType>
     where ManagerType : MonoBehaviour
 {    
-    [SerializeField] PoolType prefab;               // 풀링 오브젝트 프리팹.
-    [SerializeField] int createCount;               // 최초 생성 개수.
+    [SerializeField] PoolType poolPrefab;           // 풀링 오브젝트 프리팹.
+    [SerializeField] int createPoolCount;           // 최초 생성 개수.
 
     Stack<PoolType> storage = new Stack<PoolType>();
     Transform storageParent;                        // 저장소 부모 오브젝트.
@@ -28,14 +28,14 @@ public class ObjectPool<ManagerType, PoolType> : Singleton<ManagerType>
         storageParent.gameObject.SetActive(false);
 
         // 풀링 오브젝트 생성.
-        CreatePool(createCount);
+        CreatePool(createPoolCount);
     }
 
     private void CreatePool(int count = 1)
     {
         for (int i = 0; i < count; i++)
         {
-            PoolType newPool = Instantiate(prefab, storageParent);
+            PoolType newPool = Instantiate(poolPrefab, storageParent);
             newPool.Setup(OnReturnPool);
             storage.Push(newPool);
         }

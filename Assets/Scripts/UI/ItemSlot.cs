@@ -7,6 +7,7 @@ public class ItemSlot : MonoBehaviour
 {
     [SerializeField] protected Image iconImage;
     [SerializeField] protected Text countText;
+    [SerializeField] protected GameObject selectedFrame;
 
     protected Item item;
 
@@ -35,8 +36,8 @@ public class ItemSlot : MonoBehaviour
         countText.enabled = true;
 
         // 세팅.
-        iconImage.sprite = item.itemSprite;
-        countText.text = string.Format("x{0}", item.itemCount);
+        iconImage.sprite = item.ItemSprite;
+        countText.text = string.Format("x{0}", item.Count);
 
         this.item = item;
     }
@@ -63,6 +64,7 @@ public class ItemSlot : MonoBehaviour
 
         // 현재 슬롯 번호를 설정.
         CurrentSlotIndex = index;
+        selectedFrame.SetActive(true);
     }
     public void OnExitSlot()
     {
@@ -70,6 +72,7 @@ public class ItemSlot : MonoBehaviour
 
         // 현재 슬롯 번호를 -1(외부)로 설정
         CurrentSlotIndex = -1;
+        selectedFrame.SetActive(false);
     }
 
     public void OnBeginDrag()

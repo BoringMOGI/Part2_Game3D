@@ -1,12 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class InventoryUI : Singleton<InventoryUI>
 {
+    public bool isOpenInven
+    {
+        get;
+        private set;
+    }
+
     [SerializeField] GameObject panel;
     [SerializeField] Transform slotParent;
     [SerializeField] PreviewSlot previewSlot;
+    [SerializeField] UnityEvent OnOpenInventory;
+    [SerializeField] UnityEvent OnCloseInventory;
 
     ItemSlot[] slots;
 
@@ -32,11 +41,36 @@ public class InventoryUI : Singleton<InventoryUI>
         panel.SetActive(false);
     }
 
+    private void ResetInventory()
+    {
+        previewSlot.gameObject.SetActive(false);
+        foreach(ItemSlot slot in slots)
+        {
+            slot.OnExitSlot();
+        }
+
+        Tooltip.Instance.Close();
+    }
+
+
     public bool SwitchInventory()
     {
         // activeSelf : 게임 오브젝트가 활성화 되어있는지.
         panel.SetActive(!panel.activeSelf);
-        return panel.activeSelf;
+        isOpenInven = panel.activeSelf;
+
+        // 유니티 이벤트 호출.
+        if (isOpenInven)
+        {
+            OnOpenInventory?.Invoke();
+        }
+        else
+        {
+            OnCloseInventory?.Invoke();
+            ResetInventory();
+        }
+                
+        return isOpenInven;
     }
     public void UpdateInventory(Item[] inventory)
     {

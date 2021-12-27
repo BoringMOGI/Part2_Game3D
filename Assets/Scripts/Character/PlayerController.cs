@@ -69,16 +69,17 @@ public partial class PlayerController : Singleton<PlayerController>
 
 public partial class PlayerController
 {
+    [Header("Item")]
+    [SerializeField] Item[] firstItems;
+
     Item[] inventory = new Item[20];
 
     void OnStart()
     {
-        AddItem(ItemManager.Instance.GetItem("potion1"));
-        AddItem(ItemManager.Instance.GetItem("potion2"));
-        AddItem(ItemManager.Instance.GetItem("potion3"));
-
         InventoryUI.Instance.onChangedInven += OnChangedInven;
-        InventoryUI.Instance.UpdateInventory(inventory);
+
+        for (int i = 0; i < firstItems.Length; i++)
+            AddItem(firstItems[i]);
     }
 
     private void OnChangedInven(int before, int after)
@@ -94,24 +95,45 @@ public partial class PlayerController
             InventoryUI.Instance.UpdateInventory(inventory);    // UI에게 그려달라고 요청.
         }
     }
+    private int EmptyInven()
+    {
+        for(int i = 0; i<inventory.Length; i++)
+        {
+            if (inventory[i] == null)
+                return i;
+        }
+
+        return -1;
+    }
+
     public bool AddItem(Item item)
     {
         // 추가하려는 아이템이 없는 경우.
         if (item == null)
             return false;
 
-        for(int i = 0; i<inventory.Length; i++)
+        // 같은 아이템이 있는지 찾는다.
+        for (int i = 0; i < inventory.Length; i++)
         {
-            // 빈 공간을 발견했다.
-            if(inventory[i] == null)
+            if(inventory[i] != null && inventory[i].Equals(item))
             {
-                inventory[i] = item;
+                inventory[i].Add(item);
                 InventoryUI.Instance.UpdateInventory(inventory);
                 return true;
             }
         }
 
-        return false;
+        // 빈 공간 탐색.
+        int emptyIndex = EmptyInven();
+
+        // 빈 공간이 없을 경우.
+        if (emptyIndex == -1)
+            return false;
+
+        // 빈 공간에 아이템 추가.
+        inventory[emptyIndex] = item;
+        InventoryUI.Instance.UpdateInventory(inventory);
+        return true;
     }
 
     private void Swap<T>(T[] array, int a, int b)

@@ -24,6 +24,9 @@ public class Enemy : MonoBehaviour
     [SerializeField] Attackable attackable;     // 공격 클래스.
     [SerializeField] float attackCycle;         // 공격 주기.
 
+    [Header("DropItem")]
+    [SerializeField] Item[] itemTable;
+
 
     float nextAttackCycle;              // 다음 공격 주기.
 
@@ -168,7 +171,23 @@ public class Enemy : MonoBehaviour
         collider.enabled = false;
         isDead = true;
 
+        // 아이템 드랍.
+        DropItem();
+
         Invoke("DestroyEnemy", 3.0f);
+    }
+    private void DropItem()
+    {
+        if (itemTable.Length <= 0)
+            return;
+
+        Item pickItem = itemTable[Random.Range(0, itemTable.Length)];
+        Item dropItem = new Item(pickItem);
+
+        ItemObject itemObject = ItemManager.Instance.GetPool();
+        itemObject.Push(dropItem);
+
+        itemObject.Show(transform.position);
     }
 
 

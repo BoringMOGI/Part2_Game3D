@@ -127,6 +127,9 @@ public class PlayerMovement : MonoBehaviour
     // 공격.
     void Attack()
     {
+        if (InventoryUI.Instance.isOpenInven)
+            return;
+
         // 연속 공격 타이머.
         if (comboReset != null)
             StopCoroutine(comboReset);

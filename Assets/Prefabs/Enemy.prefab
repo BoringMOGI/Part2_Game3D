@@ -1,5 +1,35 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &395262729
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 395262730}
+  m_Layer: 7
+  m_Name: AttackPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &395262730
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 395262729}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.97, z: 0.64}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 5657604113562317871}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5657604113562317869
 GameObject:
   m_ObjectHideFlags: 0
@@ -13,6 +43,8 @@ GameObject:
   - component: {fileID: 5657604113562317868}
   - component: {fileID: 5657604113562317864}
   - component: {fileID: 5657604113562317865}
+  - component: {fileID: 385316751}
+  - component: {fileID: 385316752}
   m_Layer: 7
   m_Name: Enemy
   m_TagString: Untagged
@@ -33,6 +65,7 @@ Transform:
   m_Children:
   - {fileID: 5657604113601910778}
   - {fileID: 5657604113986419886}
+  - {fileID: 395262730}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -62,9 +95,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c515ce94b92d14a4296699184b45453f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  agent: {fileID: 385316751}
   anim: {fileID: 5657604113610913822}
   damageable: {fileID: 5657604113562317865}
   collider: {fileID: 5657604113562317870}
+  walkSpeed: 1
+  runSpeed: 3
+  playerMask:
+    serializedVersion: 2
+    m_Bits: 8
+  patrolRange: 6
+  searchRange: 10
+  attackRange: 1.5
+  attackable: {fileID: 385316752}
+  attackCycle: 1.5
+  itemTable:
+  - data: {fileID: 11400000, guid: b9ad8840bb609cf42afe7a7648070466, type: 2}
+    count: 1
+  - data: {fileID: 11400000, guid: d2c528f2f876f614fbb9755185abec5f, type: 2}
+    count: 1
 --- !u!114 &5657604113562317864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -79,7 +128,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stat:
     hp: 100
-    abilityPower: 20
+    abilityPower: 5
     attackDamage: 50
     abilityDefence: 5
     attackDefence: 2
@@ -117,6 +166,72 @@ MonoBehaviour:
       - m_Target: {fileID: 5657604113562317868}
         m_TargetAssemblyTypeName: Enemy, Assembly-CSharp
         m_MethodName: OnDead
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!195 &385316751
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5657604113562317869}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 1
+  m_Acceleration: 300
+  avoidancePriority: 50
+  m_AngularSpeed: 300
+  m_StoppingDistance: 0.01
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!114 &385316752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5657604113562317869}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d484562f3d9e234ebb776d5ce475a9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackPivot: {fileID: 395262730}
+  attackRadius: 1.2
+  attackMask:
+    serializedVersion: 2
+    m_Bits: 8
+--- !u!114 &226045465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5657604113601416092}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02947dc6bdb30ab4ebd97197efc26434, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onHit:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 385316752}
+        m_TargetAssemblyTypeName: Attackable, Assembly-CSharp
+        m_MethodName: Attack
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -365,6 +480,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3de438e70702ebf428d028c739828f43, type: 3}
+--- !u!1 &5657604113601416092 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 100066, guid: 3de438e70702ebf428d028c739828f43, type: 3}
+  m_PrefabInstance: {fileID: 5657604113601514878}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5657604113601910778 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400004, guid: 3de438e70702ebf428d028c739828f43, type: 3}

@@ -17,14 +17,21 @@ public class CameraLook : MonoBehaviour
     [SerializeField] float maxX;
 
 
+    bool isLockMouse = false;        // 마우스 잠김 상태.
+    float xRotation = 0f;            // x축 회전 값.
 
-    float xRotation = 0f;                       // x축 회전 값.
-
+        private void Awake()
+        {
+            OnLockMouse();
+        }
     private void Update()
     {
+        if (!isLockMouse)
+            return;
+
         float mouseX = Input.GetAxis("Mouse X") * sensitivityX;  // 프레임 단위 마우스의 x축 움직임.
         float mouseY = Input.GetAxis("Mouse Y") * sensitivityY;  // 프레임 단위 마우스의 y축 움직임.
-
+        
         OnMouseLook(new Vector2(mouseX, mouseY));
     }
 
@@ -36,5 +43,20 @@ public class CameraLook : MonoBehaviour
         // 수진 회전.
         xRotation = Mathf.Clamp(xRotation - axis.y, minX, maxX);
         transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+    }
+
+    public void OnLockMouse()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        isLockMouse = true;
+    }
+    public void OnUnlockMouse()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        isLockMouse = false;
     }
 }
