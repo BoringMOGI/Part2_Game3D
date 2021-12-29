@@ -17,7 +17,7 @@ public partial class PlayerController : Singleton<PlayerController>
     }
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.I))
+        if(Input.GetKeyDown(KeyCode.I) && !Chatting.IsChatting)
         {
             InventoryUI.Instance.SwitchInventory();
         }
@@ -25,7 +25,7 @@ public partial class PlayerController : Singleton<PlayerController>
         Interaction();
     }
 
-
+    
     // 상호작용할 물체를 찾는다.
     void Interaction()
     {
@@ -58,7 +58,6 @@ public partial class PlayerController : Singleton<PlayerController>
             interactionTarget.OnInteraction();
         }
     }
-
 
     private void OnDrawGizmosSelected()
     {

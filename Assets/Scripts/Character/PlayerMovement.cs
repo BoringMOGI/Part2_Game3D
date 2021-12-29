@@ -12,8 +12,6 @@ public enum DAMAGE_TYPE
     Critical,
 }
 
-
-
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
@@ -109,7 +107,7 @@ public class PlayerMovement : MonoBehaviour
         //CheckGround();          // ground 체크.
         isGround = controller.isGrounded;
 
-        if (!isDead)
+        if (!isDead && !Chatting.IsChatting)
         {
             Movement();             // 이동.
             Jump();                 // 점프.
