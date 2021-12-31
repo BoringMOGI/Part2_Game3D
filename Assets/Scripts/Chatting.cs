@@ -52,6 +52,8 @@ public partial class Chatting : MonoBehaviour, IChatClientListener
             // 나의 채팅 입력이 끝났을 때 서버로 입력된 메시지 전달.
             client.PublishMessage(channelName, str);
         }
+
+        EventSystem.current.SetSelectedGameObject(null, null);
     }
     private void OnAddText(string str)
     {
@@ -152,7 +154,7 @@ public partial class Chatting
     // 채팅의 상태가 변경되었을 때.
     public void OnChatStateChange(ChatState state)
     {
-        Debug.Log("OnChatStateChange : " + state.ToString());
+        //Debug.Log("OnChatStateChange : " + state.ToString());
     }
 
     public void OnGetMessages(string channelName, string[] senders, object[] messages)

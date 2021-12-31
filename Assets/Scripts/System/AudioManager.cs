@@ -36,8 +36,8 @@ public class AudioManager : ObjectPool<AudioManager, AudioEffect>
     {
         // 데이터 로드(Load)
         masterVolumn = PlayerPrefs.HasKey(KEY_MASTER) ? PlayerPrefs.GetFloat(KEY_MASTER) : 1f;
-        bgmVolumn = PlayerPrefs.HasKey(KEY_BGM)       ? PlayerPrefs.GetFloat(KEY_BGM) : 1f;
-        effectVolumn = PlayerPrefs.HasKey(KEY_EFFECT) ? PlayerPrefs.GetFloat(KEY_EFFECT) : 1f;
+        bgmVolumn = PlayerPrefs.HasKey(KEY_BGM)       ? PlayerPrefs.GetFloat(KEY_BGM) : 0.7f;
+        effectVolumn = PlayerPrefs.HasKey(KEY_EFFECT) ? PlayerPrefs.GetFloat(KEY_EFFECT) : 0.4f;
 
         bgmSource.volume = bgmVolumn * masterVolumn;        // 최초 배경음 크기 설정.               
     }
